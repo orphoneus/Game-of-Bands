@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Erstellungszeit: 23. Dez 2013 um 18:28
+-- Erstellungszeit: 23. Dez 2013 um 19:04
 -- Server Version: 5.5.33
 -- PHP-Version: 5.5.3
 
@@ -1168,3 +1168,86 @@ INSERT INTO `teams` (`id`, `round`, `teamnumber`, `musician`, `lyricist`, `vocal
 (9, 34, 6, 'SeeScottRock', 'imtryingtbniceperson', 'scottpontiac'),
 (10, 35, 1, 'freddy_schiller', 'kingpumpkin', 'SeeScottRock'),
 (11, 35, 2, 'keithpetersen7', 'kasminova', 'scottpontiac');
+
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `view_lyrics`
+--
+CREATE TABLE `view_lyrics` (
+`song` int(11) unsigned
+,`lyrics` text
+);
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `view_music`
+--
+CREATE TABLE `view_music` (
+`song` int(11) unsigned
+,`music` text
+);
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `view_songs`
+--
+CREATE TABLE `view_songs` (
+`id` int(11) unsigned
+,`name` text
+,`url` varchar(100)
+,`round` int(3)
+,`votes` int(5)
+,`lyrics` text
+,`music` text
+,`vocals` text
+,`musicvote` int(11)
+,`lyricsvote` int(11)
+,`vocalsvote` int(11)
+,`teamnumber` int(11)
+,`approved` tinyint(1)
+);
+-- --------------------------------------------------------
+
+--
+-- Stellvertreter-Struktur des Views `view_vocals`
+--
+CREATE TABLE `view_vocals` (
+`song` int(11) unsigned
+,`vocals` text
+);
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `view_lyrics`
+--
+DROP TABLE IF EXISTS `view_lyrics`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_lyrics` AS select `contributions`.`song` AS `song`,group_concat(`contributions`.`bandit` separator ',') AS `lyrics` from `contributions` where (`contributions`.`category` = 'lyrics') group by `contributions`.`song`;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `view_music`
+--
+DROP TABLE IF EXISTS `view_music`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_music` AS select `contributions`.`song` AS `song`,group_concat(`contributions`.`bandit` separator ',') AS `music` from `contributions` where (`contributions`.`category` = 'music') group by `contributions`.`song`;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `view_songs`
+--
+DROP TABLE IF EXISTS `view_songs`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_songs` AS select `songs`.`id` AS `id`,`songs`.`name` AS `name`,`songs`.`url` AS `url`,`songs`.`round` AS `round`,`songs`.`votes` AS `votes`,`view_lyrics`.`lyrics` AS `lyrics`,`view_music`.`music` AS `music`,`view_vocals`.`vocals` AS `vocals`,`songs`.`musicvote` AS `musicvote`,`songs`.`lyricsvote` AS `lyricsvote`,`songs`.`vocalsvote` AS `vocalsvote`,`songs`.`teamnumber` AS `teamnumber`,`songs`.`approved` AS `approved` from (((`songs` join `view_lyrics` on((`songs`.`id` = `view_lyrics`.`song`))) join `view_music` on((`songs`.`id` = `view_music`.`song`))) join `view_vocals` on((`songs`.`id` = `view_vocals`.`song`)));
+
+-- --------------------------------------------------------
+
+--
+-- Struktur des Views `view_vocals`
+--
+DROP TABLE IF EXISTS `view_vocals`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `view_vocals` AS select `contributions`.`song` AS `song`,group_concat(`contributions`.`bandit` separator ',') AS `vocals` from `contributions` where (`contributions`.`category` = 'vocals') group by `contributions`.`song`;
